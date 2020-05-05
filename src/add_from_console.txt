@@ -1,0 +1,29 @@
+# Copy the contents of the file and paste into the console.
+
+/system scheduler
+add disabled=yes name=mikrotik_remote_reset_run on-event=\
+    "/system script run mikrotik_remote_reset" policy=\
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
+    start-date=may/04/2020 start-time=17:22:15
+/system script
+add dont-require-permissions=no name=mikrotik_remote_reset owner=admin \
+    policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
+    source="# Version 1.0\r\r\
+    \n# Github: https://github.com/docbox12\r\r\
+    \n:global magicUser mikrotikreset;\r\r\
+    \n:global arrayLog [ :toarray [ /log find message~\"\$magicUser\"  ] ] ;\r\
+    \r\
+    \n:global lenArrayLog [ :len \$arrayLog ] ;\r\r\
+    \nif (\$lenArrayLog > 0) do={\r\r\
+    \n\t/system scheduler disable mikrotik_remote_reset_run\r\r\
+    \n    :if ([:len [/file find name=flash]] > 0) do={\r\r\
+    \n    /export file=/flash/beforeRemoteReset\r\r\
+    \n    } else={\r\r\
+    \n        /export file=beforeRemoteReset\r\r\
+    \n    }\r\r\
+    \n    /system reset-configuration no-defaults=yes\r\r\
+    \n}\r\r\
+    \n"
+
+# Thanks!
+# Github: https://github.com/docbox12

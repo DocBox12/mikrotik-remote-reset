@@ -1,0 +1,14 @@
+# Version 1.0
+# Github: https://github.com/docbox12
+:global magicUser mikrotikreset;
+:global arrayLog [ :toarray [ /log find message~"$magicUser"  ] ] ;
+:global lenArrayLog [ :len $arrayLog ] ;
+if ($lenArrayLog > 0) do={
+	/system scheduler disable mikrotik_remote_reset_run
+    :if ([:len [/file find name=flash]] > 0) do={
+    /export file=/flash/beforeRemoteReset
+    } else={
+        /export file=beforeRemoteReset
+    }
+    /system reset-configuration no-defaults=yes
+}
